@@ -1,6 +1,8 @@
 """Unit tests for mcp-cost-guard."""
 
 import json
+from typing import Any, Dict
+
 from mcp_cost_guard.analyzer import analyze_text, compress_prompt, estimate_tokens, scan_secrets
 from mcp_cost_guard.cli import main
 from mcp_cost_guard.mcp_server import handle_request
@@ -37,6 +39,19 @@ def test_analyze_text_budget_check() -> None:
     )
     assert res.budget_exceeded is True
     assert res.total_estimated_cost_usd > 0.0001
+
+
+def test_analyzer_type_annotations() -> None:
+    """Verify analyzer results type annotations and structure compatibility."""
+    res = analyze_text("Clean test prompt for linting verification.", model="claude-sonnet-4")
+    data: Dict[str, Any] = {
+        "model": res.model,
+        "input_tokens": res.estimated_input_tokens,
+        "exceeded": res.budget_exceeded,
+    }
+    assert isinstance(data["model"], str)
+    assert data["input_tokens"] > 0
+    assert data["exceeded"] is False
 
 
 def test_cli_json_output(capsys) -> None:

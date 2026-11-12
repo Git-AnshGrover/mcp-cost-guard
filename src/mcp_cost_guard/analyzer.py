@@ -23,6 +23,7 @@ MODEL_PRICING: Dict[str, Dict[str, float]] = {
 SECRET_PATTERNS: Dict[str, re.Pattern[str]] = {
     "Anthropic API Key": re.compile(r"sk-ant-api03-[A-Za-z0-9\-_]{20,}"),
     "OpenAI API Key": re.compile(r"sk-(?:proj-)?[A-Za-z0-9]{20,}"),
+    "Stripe Live Secret Key": re.compile(r"(?<![A-Za-z0-9_])sk_live_[A-Za-z0-9]{16,}(?![A-Za-z0-9_])"),
     "GitHub Personal Access Token": re.compile(r"gh[pousr]_[A-Za-z0-9_]{20,}"),
     "AWS Access Key ID": re.compile(r"AKIA[0-9A-Z]{16}"),
     "Slack Token": re.compile(r"xox[baprs]-[0-9a-zA-Z\-]{10,}"),

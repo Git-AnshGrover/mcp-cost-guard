@@ -18,6 +18,14 @@ def test_secret_scanner_detects_keys() -> None:
     assert "Anthropic API Key" in findings
 
 
+def test_secret_scanner_detects_stripe_live_secret_keys() -> None:
+    synthetic_key = "sk_live_" + "A1" * 16
+    assert "Stripe Live Secret Key" in scan_secrets(f"Stripe key: {synthetic_key}")
+    assert "Stripe Live Secret Key" not in scan_secrets(synthetic_key.replace("sk_live_", "sk_test_"))
+    assert "Stripe Live Secret Key" not in scan_secrets("sk_live_short")
+    assert "Stripe Live Secret Key" not in scan_secrets("prefix_" + synthetic_key)
+
+
 def test_secret_scanner_clean_text() -> None:
     assert scan_secrets("Normal developer prompt with zero credentials.") == []
 

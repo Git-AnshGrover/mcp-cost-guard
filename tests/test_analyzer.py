@@ -18,6 +18,14 @@ def test_secret_scanner_detects_keys() -> None:
     assert "Anthropic API Key" in findings
 
 
+def test_secret_scanner_detects_npm_access_tokens() -> None:
+    synthetic_token = "npm_" + "aB09" * 9
+    assert "npm Access Token" in scan_secrets(f"npm token: {synthetic_token}")
+    assert "npm Access Token" not in scan_secrets("npm_" + "aB09" * 4)
+    assert "npm Access Token" not in scan_secrets("prefix_" + synthetic_token)
+    assert "npm Access Token" not in scan_secrets(synthetic_token + "X")
+
+
 def test_secret_scanner_clean_text() -> None:
     assert scan_secrets("Normal developer prompt with zero credentials.") == []
 

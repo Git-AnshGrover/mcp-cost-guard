@@ -68,3 +68,47 @@ def test_mcp_server_initialize_and_tool_call() -> None:
     content_text = call_resp["result"]["content"][0]["text"]
     parsed = json.loads(content_text)
     assert parsed["model"] == "claude-3-5-haiku"
+
+
+def test_mcp_optimize_prompt_reports_compressed_text_and_savings() -> None:
+    response = handle_request(
+        {
+            "jsonrpc": "2.0",
+            "id": "optimize-request",
+            "method": "tools/call",
+            "params": {
+                "name": "optimize_prompt",
+                "arguments": {"text": "Summarize the results.      \n\n\n\nNext steps.      \n"},
+            },
+        }
+    )
+
+    assert response is not None
+    assert response["jsonrpc"] == "2.0"
+    assert response["id"] == "optimize-request"
+    content = response["result"]["content"][0]
+    assert content["type"] == "text"
+    payload = json.loads(content["text"])
+    assert payload["compressed_text"] == "Summarize the results.\n\nNext steps."
+    assert payload["original_tokens"] > payload["compressed_tokens"] > 0
+    assert payload["tokens_saved"] == payload["original_tokens"] - payload["compressed_tokens"]
+
+
+def test_mcp_optimize_prompt_empty_text() -> None:
+    response = handle_request(
+        {
+            "jsonrpc": "2.0",
+            "id": 0,
+            "method": "tools/call",
+            "params": {"name": "optimize_prompt", "arguments": {"text": ""}},
+        }
+    )
+
+    assert response is not None
+    assert response["id"] == 0
+    assert json.loads(response["result"]["content"][0]["text"]) == {
+        "original_tokens": 0,
+        "compressed_tokens": 0,
+        "tokens_saved": 0,
+        "compressed_text": "",
+    }

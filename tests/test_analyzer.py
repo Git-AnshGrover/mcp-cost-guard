@@ -1,7 +1,7 @@
 """Unit tests for mcp-cost-guard."""
 
 import json
-from mcp_cost_guard.analyzer import analyze_text, compress_prompt, estimate_tokens, scan_secrets
+from mcp_cost_guard.analyzer import MODEL_PRICING, analyze_text, compress_prompt, estimate_tokens, scan_secrets
 from mcp_cost_guard.cli import main
 from mcp_cost_guard.mcp_server import handle_request
 
@@ -68,3 +68,35 @@ def test_mcp_server_initialize_and_tool_call() -> None:
     content_text = call_resp["result"]["content"][0]["text"]
     parsed = json.loads(content_text)
     assert parsed["model"] == "claude-3-5-haiku"
+
+
+def test_mcp_server_list_supported_models_tool() -> None:
+    list_resp = handle_request({"jsonrpc": "2.0", "id": 3, "method": "tools/list"})
+    assert list_resp is not None
+    tool_names = [tool["name"] for tool in list_resp["result"]["tools"]]
+    assert "list_supported_models" in tool_names
+
+    call_resp = handle_request(
+        {
+            "jsonrpc": "2.0",
+            "id": 4,
+            "method": "tools/call",
+            "params": {"name": "list_supported_models", "arguments": {}},
+        }
+    )
+    assert call_resp is not None
+    content_text = call_resp["result"]["content"][0]["text"]
+    parsed = json.loads(content_text)
+    assert parsed == MODEL_PRICING
+
+    # Some MCP clients omit `arguments` entirely for no-argument tools.
+    no_args_resp = handle_request(
+        {
+            "jsonrpc": "2.0",
+            "id": 5,
+            "method": "tools/call",
+            "params": {"name": "list_supported_models"},
+        }
+    )
+    assert no_args_resp is not None
+    assert json.loads(no_args_resp["result"]["content"][0]["text"]) == MODEL_PRICING

@@ -49,6 +49,12 @@ Add the following to your `claude_desktop_config.json` or `.mcp.json`:
 }
 ```
 
+The MCP server exposes three tools:
+
+- `audit_prompt_cost` — estimates token count, USD API cost, and context window usage, and scans for leaked secrets.
+- `list_supported_models` — lists all supported models with pricing per 1M tokens and context window sizes.
+- `optimize_prompt` — compresses redundant whitespace in a prompt and reports token savings.
+
 ## Contributing
 
 We actively welcome first-time and experienced open-source contributors! Check our [open Good First Issues](https://github.com/Git-AnshGrover/mcp-cost-guard/labels/good%20first%20issue) and read [CONTRIBUTING.md](CONTRIBUTING.md) to get started in under 5 minutes.

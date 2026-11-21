@@ -57,6 +57,14 @@ def handle_request(request: Dict[str, Any]) -> Dict[str, Any] | None:
                         },
                     },
                     {
+                        "name": "list_supported_models",
+                        "description": "Lists all supported models with pricing per 1M tokens and context window sizes.",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {},
+                        },
+                    },
+                    {
                         "name": "optimize_prompt",
                         "description": "Compresses redundant whitespace in a prompt and reports token savings.",
                         "inputSchema": {
@@ -85,6 +93,15 @@ def handle_request(request: Dict[str, Any]) -> Dict[str, Any] | None:
                 "id": req_id,
                 "result": {
                     "content": [{"type": "text", "text": json.dumps(result.to_dict(), indent=2)}]
+                },
+            }
+
+        if tool_name == "list_supported_models":
+            return {
+                "jsonrpc": "2.0",
+                "id": req_id,
+                "result": {
+                    "content": [{"type": "text", "text": json.dumps(MODEL_PRICING, indent=2)}]
                 },
             }
 

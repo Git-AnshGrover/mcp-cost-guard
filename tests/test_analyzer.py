@@ -88,3 +88,15 @@ def test_mcp_server_list_supported_models_tool() -> None:
     content_text = call_resp["result"]["content"][0]["text"]
     parsed = json.loads(content_text)
     assert parsed == MODEL_PRICING
+
+    # Some MCP clients omit `arguments` entirely for no-argument tools.
+    no_args_resp = handle_request(
+        {
+            "jsonrpc": "2.0",
+            "id": 5,
+            "method": "tools/call",
+            "params": {"name": "list_supported_models"},
+        }
+    )
+    assert no_args_resp is not None
+    assert json.loads(no_args_resp["result"]["content"][0]["text"]) == MODEL_PRICING
